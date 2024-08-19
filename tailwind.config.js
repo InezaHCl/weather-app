@@ -11,6 +11,8 @@ module.exports = {
         white: "#fff",
         blackText: "#222",
         primary: "#13ce66",
+        secondary: "#f59f00",
+        secondary_light: "#fab005",
         gray: "#8492a6",
         gray_dark: "#273444",
         gray_light: "#d3dce6",
