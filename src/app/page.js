@@ -35,13 +35,71 @@ function formatDay(dateStr) {
 
 export default function Home() {
   const [location, setLocation] = useState("");
+  const [home, setHome] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [weather, setWeather] = useState({});
   const [displayFlag, setDisplayflag] = useState("");
+  const [geoPosition, setGeoPosition] = useState({});
 
-  async function handleFetchWeather() {
+  useEffect(() => {
+    async function fetchCityData() {
+      if (geoPosition.lat && geoPosition.lng) {
+        setIsLoading(true);
+        console.log(geoPosition.lat, geoPosition.lng);
+        try {
+          const cityRes = await fetch(
+            `https://geocode.xyz/${geoPosition.lat},${geoPosition.lng}?geoit=json`
+          );
+          const cityData = await cityRes.json();
+          console.log(cityData.city);
+          setLocation(cityData.city);
+          setHome(cityData.city);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }
+
+    fetchCityData();
+  }, [geoPosition]);
+
+  useEffect(function () {
+    if (!navigator.geolocation) {
+      alert("Your browser does not support geolocation!");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        console.log(pos);
+        setGeoPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      (error) => {
+        alert(`${error.message}`);
+        return;
+      }
+    );
+  }, []);
+
+  // Fetch weather data when the location is updated
+  useEffect(() => {
+    if (home) {
+      fetchWeather(home);
+      setIsLoading(false);
+    }
+  }, [home]);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    fetchWeather();
+  }
+
+  async function fetchWeather() {
     try {
       setIsLoading(true);
+      console.log("First Search:", location);
+      // console.log(location);
       const geoRes = await fetch(
         `https://geocoding-api.open-meteo.com/v1/search?name=${location}`
       );
@@ -75,6 +133,7 @@ export default function Home() {
       console.error(err);
     } finally {
       setIsLoading(false);
+      setLocation("");
     }
   }
 
@@ -85,22 +144,23 @@ export default function Home() {
           Cool Weather
         </h1>
 
-        <div>
+        <form onSubmit={handleSubmit}>
           <input
             type="text"
-            value={location}
+            value={location || ""}
             onChange={(el) => setLocation(el.target.value)}
             disabled={isLoading}
             placeholder="search from location"
             className="text-md text-black bg-white py-2 px-4 placeholder:uppercase placeholder:text-light_dark"
           />
           <button
-            onClick={handleFetchWeather}
+            type="submit"
+            // onSubmit={handleSubmit}
             className="bg-secondary text-black py-2 px-4 rounded-e-lg hover:cursor-pointer hover:bg-secondary_light"
           >
             SEARCH
           </button>
-        </div>
+        </form>
 
         {isLoading && <p className="text-2xl font-semibold">Loading...</p>}
 
@@ -166,3 +226,15 @@ function Day({ maxTemp, minTemp, day, icon, isToday }) {
 // build: runs next build to build the application for production usage.
 // start: runs next start to start a Next.js production server.
 // lint: runs next lint to set up Next.js' built-in ESLint configuration.
+
+//////////////////////////////////////////////////////////
+// TODO: https://geocode.xyz/${lat},${lng}?geoit=json
+// Example:
+// fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
+//     .then(res => {
+//       if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+//       return res.json();
+//     })
+//     .then(data => {
+//       console.log(data);
+//       console.log(`You are in ${data.city}, ${data.country}`);
