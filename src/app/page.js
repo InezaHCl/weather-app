@@ -51,6 +51,7 @@ export default function Home() {
             `https://geocode.xyz/${geoPosition.lat},${geoPosition.lng}?geoit=json`
           );
           const cityData = await cityRes.json();
+          console.log(cityData);
           console.log(cityData.city);
           setLocation(cityData.city);
           setHome(cityData.city);
@@ -138,25 +139,27 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center">
-      <div className="flex flex-col items-center w-10/12 gap-6 p-10 border-2 border-black outline outline-offset-2 outline-2 outline-black">
-        <h1 className="font-semibold text-5xl tracking-normal uppercase">
-          Cool Weather
+    <main className="flex min-h-screen flex-col items-center justify-center my-3">
+      <div className="flex flex-col items-center w-11/12 md:w-10/12 gap-6 p-4 md:p-10 border-2 border-black outline outline-offset-2 outline-2 outline-black">
+        <h1 className="font-semibold text-2xl md:text-5xl tracking-normal uppercase">
+          classy forecast <span>🌍</span>
         </h1>
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+          className="flex justify-center items-center"
+        >
           <input
             type="text"
             value={location || ""}
             onChange={(el) => setLocation(el.target.value)}
             disabled={isLoading}
             placeholder="search from location"
-            className="text-md text-black bg-white py-2 px-4 placeholder:uppercase placeholder:text-light_dark"
+            className="md:text-md text-black bg-white py-2 px-4 w-10/12 rounded-s-lg focus:outline-none placeholder:uppercase placeholder:text-light_dark placeholder:text-sm"
           />
           <button
             type="submit"
-            // onSubmit={handleSubmit}
-            className="bg-secondary text-black py-2 px-4 rounded-e-lg hover:cursor-pointer hover:bg-secondary_light"
+            className="bg-secondary text-black py-2 px-2 md:py-2 md:px-4 rounded-e-lg hover:cursor-pointer hover:bg-secondary_light"
           >
             SEARCH
           </button>
@@ -181,12 +184,13 @@ function Weather({ flag, weather }) {
     weathercode: code,
   } = weather;
   return (
-    <div>
-      <h2 className="text-white text-2xl text-center mb-4">
+    <div className="w-full">
+      <h2 className="text-white text-xl font-semibold md:text-2xl text-center mb-4">
         WEATHER in {flag}
       </h2>
 
-      <ul className="list-none flex gap-7">
+      {/* flex gap-7 */}
+      <ul className="list-none grid grid-cols-1 md:grid-cols-4 gap-3 ">
         {dates.map((date, i) => (
           <Day
             maxTemp={max.at(i)}
@@ -204,16 +208,16 @@ function Weather({ flag, weather }) {
 
 function Day({ maxTemp, minTemp, day, icon, isToday }) {
   return (
-    <li className="px-5 py-4 text-center bg-[#087f5b] hover:cursor-pointer border">
+    <li className="px-5 py-4 text-center bg-primary_dark hover:cursor-pointer border">
       {isToday ? (
-        <p className="text-white">Today</p>
+        <p className="text-xl font-semibold text-secondary_lighter">Today</p>
       ) : (
-        <p className="text-white">{day}</p>
+        <p className="text-xl font-semibold text-secondary_lighter">{day}</p>
       )}
 
-      <span className="text-2xl">{icon}</span>
+      <span className="text-3xl">{icon}</span>
 
-      <p className="text-white">
+      <p className="text-white text-xl">
         {Math.floor(minTemp)}&deg; &mdash;{" "}
         <strong>{Math.ceil(maxTemp)}&deg;</strong>
       </p>
